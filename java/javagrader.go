@@ -39,7 +39,7 @@ func Run(path string) (string, int64, error) {
 
 // RunCase :
 func RunCase(path string, inPath string, outPath string, execTime time.Duration) error {
-	cmd := exec.Command("java", path, "<", inPath)
+	cmd := exec.Command("java", "-Xmx64m", path, "<", inPath)
 	
 	var buf bytes.Buffer
 	cmd.Stdout = &buf
