@@ -1,19 +1,20 @@
-package java
+package model
 
 import (
+	"bytes"
+	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os/exec"
 	"time"
-	"errors"
-	"bytes"
-	"io/ioutil"
-	"fmt"
 )
 
-// Run :
-func Run(path string) (string, int64, error) {
+type JavaGrader struct{}
+
+func (jg JavaGrader) Run(path string) (string, int64, error) {
 	cmd := exec.Command("java", path)
-	
+
 	var buf bytes.Buffer
 	cmd.Stdout = &buf
 
@@ -37,10 +38,9 @@ func Run(path string) (string, int64, error) {
 	}
 }
 
-// RunCase :
-func RunCase(path string, inPath string, outPath string, execTime time.Duration) error {
+func (jg JavaGrader) RunCase(path string, inPath string, outPath string, execTime time.Duration) error {
 	cmd := exec.Command("java", "-Xmx64m", path, "<", inPath)
-	
+
 	var buf bytes.Buffer
 	cmd.Stdout = &buf
 
@@ -71,16 +71,15 @@ func RunCase(path string, inPath string, outPath string, execTime time.Duration)
 	}
 }
 
-// RunAllCases :
-func RunAllCases(path string, timePerCase time.Duration, cases ...string) error {
-	if len(cases) % 2 != 0 {
+func (jg JavaGrader) RunAllCases(path string, timePerCase time.Duration, cases ...string) error {
+	if len(cases)%2 != 0 {
 		return errors.New("Test cases are invalid")
 	}
 
 	for i := 0; i < len(cases); i += 2 {
-		err := RunCase(path, cases[i], cases[i + 1], timePerCase)
+		err := jg.RunCase(path, cases[i], cases[i+1], timePerCase)
 		if err != nil {
-			msg := fmt.Sprintf("Wrong output on test case #%d", (i / 2) + 1)
+			msg := fmt.Sprintf("Wrong output on test case #%d", (i/2)+1)
 			return errors.New(msg)
 		}
 	}
